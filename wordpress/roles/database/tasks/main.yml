@@ -1,0 +1,21 @@
+---
+- name: SYSTEM | Install basic mysql packages
+  package: name={{ item }} state=present
+  with_items:
+    - mysql-server
+
+- name: MYSQL | Create database
+#  become: true
+#  become_user: "{{ MYSQL_USER }}"
+  mysql_db:
+    name: wordpress
+
+- name: MYSQL | Create wordpress DB user
+#  become: yes
+#  become_user: "{{ MYSQL_USER }}"
+  mysql_user:
+#    db: "{{ DB_NAME }}"
+    name: "{{ DB_USER }}"
+    password: "{{ DB_PASSWORD }}"
+#    priv: ALL
+    priv: "wordpress.*:ALL"

@@ -1,0 +1,7 @@
+---
+- name: Docker setup
+  hosts: 192.168.5.169
+  remote_user: root
+  roles:
+    - common
+    - geerlingguy.docker

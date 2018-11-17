@@ -1,0 +1,65 @@
+---
+# Webserver Configuration
+
+- name: SYSTEM | Install util packages
+  package: name={{ item }} state=present
+  with_items:
+    - python-apt
+
+- name: NGINX | Ensure that nginx PPA is added to Ubuntu
+  apt_repository: repo='ppa:nginx/stable' update_cache=yes
+
+- name: NGINX | Install nginx
+  package: name=nginx state=present
+
+- name: NGINX | Remove default vhost
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: NGINX | Configure vhost
+  template: src=wordpress.conf dest=/etc/nginx/sites-available/wordpress.conf
+
+- name: Create symbolic link 
+  file:
+    src: "/etc/nginx/sites-available/wordpress.conf"
+    dest: "/etc/nginx/sites-enabled/wordpress.conf"
+    state: link
+
+- name: Reload service httpd, in all cases
+  service:
+    name: nginx
+    state: reloaded
+
+- name: NGINX | nginx should be running, and enabled at boot
+  service: name=nginx state=started enabled=yes
+
+# Application Install
+
+- stat: path="{{ WORDPRESS_ROOT }}/wordpress"
+  register: wordpress_install
+
+- block:
+    - name: INSTALL | Download Wordpress
+      ## unarchive is new in 2.0, and remote_src requires 2.2. For older versions, use 'get_url' and 'unarchive'
+      # unarchive: remote_src=yes src="{{ LATEST_MM_URL }}" dest="/home/{{ mattermost_sysuser }}/"
+      ## get_url bugs out on target machines using older versions of Ubuntu
+      # get_url: url="{{ LATEST_MM_URL }}" dest="/home/{{ mattermost_sysuser }}/{{ LATEST_MM_DOWNLOADNAME }}"
+      #
+      ## Forget it; we're using wget
+      raw: (cd {{ WORDPRESS_ROOT }} && wget {{ WORDPRESS_LATEST_URL }})
+      
+    - name: INSTALL | Unarchive wordpress
+      unarchive: copy=no src="{{ WORDPRESS_ROOT }}{{ WORDPRESS_FILE }}" dest="{{ WORDPRESS_ROOT }}"
+      
+    - name: CLEANUP | Remove downloaded latest.tar.gz
+      file: path="{{ WORDPRESS_ROOT }}{{ WORDPRESS_FILE }}" state=absent
+    
+  # Only execute the above task block if we don't already have a Wordpress install directory
+  when: wordpress_install.stat.exists == False
+
+- name: CONFIG | Set proper permissions on Wordpress app directory
+  file:
+    path: "{{ WORDPRESS_ROOT }}"
+    # mode: 0755
+    owner: "{{ OWNER_USER }}"
+    group: "{{ OWNER_GROUP }}"
+    recurse: yes
