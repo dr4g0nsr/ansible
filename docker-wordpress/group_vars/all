@@ -16,29 +16,31 @@ OWNER_GROUP: www-data
 # Database
 ####################################################
 # MYSQL Version
-MYSQL_VERSION: "5.7"
+MYSQL_VERSION: "5.7.22"
 ## Change this to 'localhost' if you're running your 
 ## database on the same machine as your web application
 # grab the first DB server (this is not elegant)
 # db_server: "{{ hostvars[groups['dbservers'][0]]['ansible_default_ipv4']['address'] }}"
-DB_SERVER: localhost
+DB_SERVER: mysql
 DB_NAME: wordpress
 DB_USER: wordpress
 DB_PASSWORD: wordpress
-MYSQL_USER: mysql
+DB_ROOT: root
+DB_ROOT_PASSWORD: root
 
 ####################################################
 # Web
 ####################################################
 WORDPRESS_FILE: "latest.tar.gz"
 WORDPRESS_LATEST_URL: "https://wordpress.org/{{ WORDPRESS_FILE }}"
-WORDPRESS_ROOT: "/var/www/html/"
+WORDPRESS_ROOT: "/root/docker-compose/web/"
 PHP_PASS: "127.0.0.1:9000"
 
 ####################################################
 # PHP
 ####################################################
-#PHP_VERSION: "7.2"
-#PHP_PORT: "9000"
-#PHP_PATH: "/var/www/html/"
-#PHP_FPM_DAEMON: "php7.2-fpm"
+PHP_VERSION: "7.2"
+PHP_PORT: "9000"
+PHP_PATH: "/root/docker-compose/web/"
+PHP_FPM_DAEMON: "php7.2-fpm"
+PHP_NAME: "php"

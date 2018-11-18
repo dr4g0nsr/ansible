@@ -7,4 +7,19 @@
   
   tasks:
   - name: install python 2
-    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+    raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal python-pip python-dev build-essential)
+
+  - name: install pip
+    raw: test -e /usr/bin/pip || (apt install -y python-minimal python-pip python-dev build-essential)
+
+  - name: upgrade pip and install virtual env
+    raw: pip install --upgrade pip && pip install --upgrade virtualenv
+
+  - name: install dependicies
+    pip:
+      name: docker
+
+  - name: install dependicies
+    pip:
+      name: docker-compose
+

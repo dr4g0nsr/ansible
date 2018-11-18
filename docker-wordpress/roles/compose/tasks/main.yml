@@ -1,0 +1,97 @@
+---
+- name: DOCKER COMPOSE | Setup docker compose file
+  template:
+    src="docker-compose.yml"
+    dest="/root/docker-compose.yml"
+    owner="root"
+    group="root"
+    mode="0600"
+#    validate=/usr/sbin/sshd -t -f %s
+#    backup=yes
+
+- name: DOCKER COMPOSE | Setup env file
+  template:
+    src=".env"
+    dest="/root/.env"
+    owner="root"
+    group="root"
+    mode="0600"
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/etc/nginx
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/etc/ssl
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/web/app
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/etc/php
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/data/db
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup folders
+  file:
+    path=/root/docker-compose/data/portainer
+    mode=0775
+    recurse=yes
+
+- name: DOCKER COMPOSE | Setup config files
+  template:
+    src="default.conf"
+    dest="/root/docker-compose/etc/nginx/default.conf"
+    owner="root"
+    group="root"
+    mode="0664"
+
+#- name: DOCKER COMPOSE | Setup config files
+#  template:
+#    src="default.template.conf"
+#    dest="/root/docker-compose/etc/nginx/default.template.conf"
+#    owner="root"
+#    group="root"
+#    mode="0664"
+
+- name: DOCKER COMPOSE | Setup config files
+  template:
+    src="php.ini"
+    dest="/root/docker-compose/etc/php/php.ini"
+    owner="root"
+    group="root"
+    mode="0664"
+
+- name: DOCKER COMPOSE | Setup run
+  template:
+    src="run.sh"
+    dest="/root/run.sh"
+    owner="root"
+    group="root"
+    mode="0777"
+
+- name: DOCKER COMPOSE | Setup stop
+  template:
+    src="stop.sh"
+    dest="/root/stop.sh"
+    owner="root"
+    group="root"
+    mode="0777"
+
+- name: DOCKER COMPOSE | Load docker compose file
+  raw: "docker-compose up -d"

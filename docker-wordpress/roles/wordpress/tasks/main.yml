@@ -1,0 +1,26 @@
+---
+# WP Install
+
+- stat: path="{{ WORDPRESS_ROOT }}/wordpress"
+  register: wordpress_install
+
+- block:
+    - name: INSTALL | Download Wordpress
+      raw: (cd {{ WORDPRESS_ROOT }} && wget {{ WORDPRESS_LATEST_URL }})
+      
+    - name: INSTALL | Unarchive wordpress
+      unarchive: copy=no src="{{ WORDPRESS_ROOT }}{{ WORDPRESS_FILE }}" dest="{{ WORDPRESS_ROOT }}"
+      
+    - name: CLEANUP | Remove downloaded latest.tar.gz
+      file: path="{{ WORDPRESS_ROOT }}{{ WORDPRESS_FILE }}" state=absent
+    
+  # Only execute the above task block if we don't already have a Wordpress install directory
+  when: wordpress_install.stat.exists == False
+
+- name: CONFIG | Set proper permissions on Wordpress app directory
+  file:
+    path: "{{ WORDPRESS_ROOT }}"
+    # mode: 0755
+    owner: "{{ OWNER_USER }}"
+    group: "{{ OWNER_GROUP }}"
+    recurse: yes
